@@ -1,38 +1,28 @@
-#import
-from telegram.ext import Updater
-from telegram.ext import CommandHandler
-from telegram.ext import MessageHandler
-from telegram.ext import Filters
+import sys
+import time
+import telepot
+from telepot.loop import MessageLoop
 from settings import TOKEN
-import logging
+import pdb
 
-logging .basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
-                     level=logging.INFO,
-                     filename='bot.log')
+def handle(msg):
+    content_type, chat_type, chat_id = telepot.glance(msg)
+    print(content_type, chat_type, chat_id)
+    if content_type == 'text' and msg["text"].lower() == "pdf":
+        # let the human know that the pdf is on its way
+        bot.sendMessage(chat_id, "Sending file..")
+        file="D:\\hq.jpg"
 
-def sms(bot, update):
-    print('')
-    bot.message.reply_text('Пропустил звонки📱 пропустил сообщения😢 '
-                           '\nперезвоню🚫 отдыхаю🏄‍♂ нету времени🕖'.format(bot.message.chat.first_name)) # отправляем ответ
+        # send the pdf doc
+        bot.sendDocument(chat_id=chat_id, document=open(file, 'rb'))
+    elif content_type == 'text':
+        bot.sendMessage(chat_id, "sorry, I can only deliver pdf")
 
-def snd(bot, update):
-    bot.sendDocument(chat_id, data, {fileName: 'file.pdf'});
+# replace XXXX.. with your token
 
-#parrot() Отвечает темже сообщением которое ему прислали
-def parrot(bot, update):
-    print(bot.message.text) # печатаем на экран сообщение пользователя
-    bot.message.reply_text(bot.message.text) # отправляем обратно текст пользователя
-
-
-def main():
-    my_bot = Updater(TOKEN)
-    my_bot.dispatcher.add_handler(CommandHandler('start', sms))
-    logging.info('Start bot')
-    my_bot.dispatcher.add_handler(MessageHandler(Filters.text, parrot)) # обработчик текстового сообщения
-
-    my_bot.start_polling()
-    my_bot.idle()
-
-
-
-main()
+bot = telepot.Bot(TOKEN)
+MessageLoop(bot, handle).run_as_thread()
+print ('Listening ...')
+# Keep the program running.
+while 1:
+    time.sleep(10)
